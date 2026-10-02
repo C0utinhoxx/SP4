@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sistema de Recarga — Sprint 4</title>
+<link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+<header class="topo">
+  <div>
+    <h1> Sistema de Gerenciamento de Recargas</h1>
+    <p class="sub">Interface Web &rarr; Backend Python (Flask) &rarr; Estruturas de Dados &rarr; Algoritmos</p>
+  </div>
+  <div class="badge" id="statusBackend">Backend Python: conectando...</div>
+</header>
+
+<nav class="abas">
+  <button class="aba ativa" data-aba="sessoes">1. Sessões</button>
+  <button class="aba" data-aba="busca">2. Busca</button>
+  <button class="aba" data-aba="ordem">3. Ordenação</button>
+  <button class="aba" data-aba="stats">4. Estatísticas</button>
+  <button class="aba" data-aba="relatorio">5. Tarifação &amp; Relatório</button>
+  <button class="aba" data-aba="complexidade">6. Complexidade Big-O</button>
+</nav>
+
+<main>
+
+<section id="sessoes" class="painel ativo">
+  <div class="grid2">
+    <div class="card">
+      <h2>Cadastro de sessão de recarga</h2>
+      <form id="formSessao">
+        <label>Veículo <input name="veiculo" placeholder="Tesla Model 3" required /></label>
+        <label>Placa <input name="placa" placeholder="ABC1D23" required /></label>
+        <label>Estação
+          <select name="estacao">
+            <option>EST-01</option><option>EST-02</option><option>EST-03</option><option>EST-04</option>
+          </select>
+        </label>
+        <label>Início <input type="datetime-local" name="data_inicio" required /></label>
+        <label>Duração (min) <input type="number" name="duracao_min" value="40" min="1" required /></label>
+        <label>Energia (kWh) <input type="number" step="0.1" name="kwh" value="20" min="0.1" required /></label>
+        <label>Status
+          <select name="status">
+            <option value="concluida">concluída</option>
+            <option value="em_andamento">em andamento</option>
+            <option value="cancelada">cancelada</option>
+          </select>
+        </label>
+        <button class="primario" type="submit">Gravar sessão (lista.append)</button>
+      </form>
+      <p class="dica">A tarifa é calculada <strong>automaticamente</strong> pela faixa horária:
+        ponta (18h–21h) +40%, válle (00h–06h) −20%, normal = base.</p>
+    </div>
+
+    <div class="card">
+      <h2>Armazenamento e listagem das sessões</h2>
+      <div class="filtros">
+        <select id="campoFiltro">
+          <option value="placa">placa</option>
+          <option value="veiculo">veiculo</option>
+          <option value="estacao">estacao</option>
+          <option value="status">status</option>
+        </select>
+        <input id="termoFiltro" placeholder="filtrar..." />
+        <button id="btnFiltrar">Filtrar (busca O(n))</button>
+        <button id="btnLimpar" class="fantasma">Limpar</button>
+      </div>
+      <p class="contador" id="contador">—</p>
+      <div class="tabela-wrap">
+        <table id="tabelaSessoes">
+          <thead>
+            <tr>
+              <th>ID</th><th>Veículo / Placa</th><th>Estação</th><th>Início</th>
+              <th>min</th><th>kWh</th><th>Faixa</th><th>R$/kWh</th><th>Custo</th><th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="dica">Cada linha é um objeto <code>SessaoRecarga</code> (dataclass) dentro da
+        lista <code>repositorio.sessoes</code> — a "base de dados" do sistema nesta Sprint.</p>
+    </div>
+  </div>
+</section>
+
+<section id="busca" class="painel">
+  <div class="grid2">
+    <div class="card">
+      <h2>Busca de uma sessão</h2>
+      <label>Campo
+        <select id="campoBusca"></select>
+      </label>
+      <label>Valor pesquisado <input id="valorBusca" placeholder="ABC1D23" /></label>
+      <label>Algoritmo <select id="algoritmoBusca"></select></label>
+      <button class="primario" id="btnBuscar">Executar busca no backend Python</button>
+      <div class="metricas" id="metricasBusca" hidden>
+        <div><b id="bBuscaAlgoritmo"></b><span>algoritmo</span></div>
+        <div><b id="bBuscaComplex"></b><span>complexidade</span></div>
+        <div><b id="bBuscaCompara"></b><span>comparações</span></div>
+        <div><b id="bBuscaPercorridos"></b><span>elementos percorridos</span></div>
+        <div><b id="bBuscaTotal"></b><span>sessões armazenadas</span></div>
+      </div>
+      <p class="texto" id="explicacaoBusca"></p>
+    </div>
+    <div class="card">
+      <h2>Resultado</h2>
+      <div id="resultadoBusca" class="vazio">Nenhuma busca executada.</div>
+    </div>
+  </div>
+</section>
+
+<section id="ordem" class="painel">
+  <div class="card">
+    <h2>Ordenação das sessões — algoritmo implementado pelo grupo</h2>
+    <div class="filtros">
+      <label>Campo <select id="campoOrdem"></select></label>
+      <label>Algoritmo <select id="algoritmoOrdem"></select></label>
+      <label>Direção
+        <select id="direcaoOrdem">
+          <option value="asc">crescente ↑</option>
+          <option value="desc">decrescente ↓</option>
+        </select>
+      </label>
+      <button class="primario" id="btnOrdenar">Ordenar no backend Python</button>
+    </div>
+    <div class="metricas" id="metricasOrdem" hidden>
+      <div><b id="bOrdAlgoritmo"></b><span>algoritmo</span></div>
+      <div><b id="bOrdComplex"></b><span>complexidade</span></div>
+      <div><b id="bOrdCompara"></b><span>comparações</span></div>
+      <div><b id="bOrdTrocas"></b><span>trocas / deslocamentos</span></div>
+      <div><b id="bOrdPassadas"></b><span>passadas</span></div>
+      <div><b id="bOrdTam"></b><span>sessões ordenadas</span></div>
+    </div>
+    <p class="texto" id="explicacaoOrdem"></p>
+    <div class="tabela-wrap">
+      <table id="tabelaOrdem">
+        <thead>
+          <tr><th>#</th><th>ID</th><th>Veículo</th><th>Início</th><th>min</th><th>kWh</th><th>Custo</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="stats" class="painel">
+  <div class="card">
+    <h2>Estatísticas das sessões</h2>
+    <button class="primario" id="btnStats">Calcular estatísticas (O(n))</button>
+    <div class="kpi" id="kpiStats"></div>
+    <div class="grid2">
+      <div>
+        <h3>Sessões por faixa tarifária</h3>
+        <div id="faixaStats" class="barras"></div>
+      </div>
+      <div>
+        <h3>Consumo por estação</h3>
+        <div id="estacaoStats" class="barras"></div>
+      </div>
+    </div>
+    <p class="texto" id="textoStats"></p>
+  </div>
+</section>
+
+<section id="relatorio" class="painel">
+  <div class="card">
+    <h2>Tarifação e relatório final</h2>
+    <div class="filtros">
+      <label>Preço do kWh base <input id="precoKwh" type="number" step="0.01" value="0.92" /></label>
+      <label>Taxa da sessão (R$) <input id="taxaSessao" type="number" step="0.01" value="0.75" /></label>
+      <button class="primario" id="btnRelatorio">Gerar relatório</button>
+    </div>
+    <div class="kpi" id="kpiRelatorio"></div>
+    <div class="grid2">
+      <div>
+        <h3>Top veículos por consumo</h3>
+        <div id="topVeiculos" class="tabela-wrap"></div>
+      </div>
+      <div>
+        <h3>Observações da tarifação</h3>
+        <p class="texto" id="obsRelatorio"></p>
+        <div id="faixaRelatorio" class="barras"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="complexidade" class="painel">
+  <div class="card">
+    <h2>Análise de complexidade com os dados atuais</h2>
+    <p class="texto">
+      As operações abaixo são calculadas pelo <strong>backend Python</strong> usando a quantidade
+      real de sessões armazenadas agora — assim dá para mostrar, no vídeo, o que acontece com o
+      número de operações quando <code>n</code> cresce.
+    </p>
+    <div class="tabela-wrap">
+      <table id="tabelaComplex">
+        <thead><tr><th>Onde no código</th><th>Operação</th><th>Big-O</th><th>Com as sessões atuais</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="grid2">
+      <div class="card destaque">
+        <h3>O que acontece quando n aumenta?</h3>
+        <ul class="texto">
+          <li><b>O(1)</b> — inserir no fim da lista: cresce 1 a 1, nunca muda (append).</li>
+          <li><b>O(n)</b> — busca linear e estatísticas: se n dobra, as operações dobram.</li>
+          <li><b>O(log n)</b> — busca binária: n dobra e só +1 comparação (divide pela metade).</li>
+          <li><b>O(n log n)</b> — Merge/Quick: cresce um pouco mais que linear.</li>
+          <li><b>O(n²)</b> — Bubble/Selection/Insertion: n dobra e as operações multiplicam ~4x.</li>
+        </ul>
+      </div>
+      <div class="card destaque">
+        <h3>Fluxo Interface &rarr; Backend</h3>
+        <ol class="texto">
+          <li>Interface Web envia <code>fetch()</code> (JSON) para a rota Flask.</li>
+          <li>Flask lê a requisição e chama o repositório (lista de objetos).</li>
+          <li>Repositório executa busca/ordenação/estatística em Python.</li>
+          <li>Backend devolve JSON com dados + métricas de operações.</li>
+          <li>Interface renderiza o resultado na tela.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <p>Backend: Python 3 + Flask &nbsp;|&nbsp; Estruturas: dataclass, lista, dicionário &nbsp;|&nbsp;
+     Busca: linear O(n) e binária O(log n) &nbsp;|&nbsp; Ordenação: Bubble, Insertion, Selection,
+     Merge e Quick implementados manualmente.</p>
+</footer>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
